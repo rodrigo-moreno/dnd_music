@@ -3,16 +3,12 @@ from torch import nn
 import torch.nn.functional as F
 
 def pad_to_power_of_two(x, target_dim=2048):
-    _, _, h, w = x.size()
-    pad_h = target_dim - h if h < target_dim else 0
+    _, _, _, w = x.size()
     pad_w = target_dim - w if w < target_dim else 0
     # Asegúrate de que el padding sea simétrico
-    padding = (pad_w // 2, pad_w - pad_w // 2, pad_h // 2, pad_h - pad_h // 2)
+    padding = (pad_w // 2, pad_w - pad_w // 2 , 0, 0)
     return F.pad(x, padding, "constant", 0)  # padding (left, right, top, bottom)
 
-# Ejemplo de uso
-x = torch.randn(16, 1, 80, 1723)
-x_padded = pad_to_power_of_two(x, 2048)
 
 
 class UNetBlock(nn.Module):
@@ -70,16 +66,15 @@ class UNet(nn.Module):
         self.final_conv = nn.Conv2d(32, 1, kernel_size=1)
 
     def forward(self, x):
-        pad_to_power_of_two(x)
-        x1 = self.down1(x);print(x1.shape)
-        x2 = self.down2(x1);print(x2.shape)
-        x3 = self.down3(x2);print(x3.shape)
-        x4 = self.down4(x3);print(x4.shape)
+        x1 = self.down1(x)
+        x2 = self.down2(x1)
+        x3 = self.down3(x2)
+        x4 = self.down4(x3)
 
-        x = self.up1(x4);print(x.shape)
-        x = self.up2(x);print(x.shape)
-        x = self.up3(x);print(x.shape)
-        x = self.up4(x);print(x.shape)
-        x = self.final_conv(x);print(x.shape)
+        x = self.up1(x4)
+        x = self.up2(x)
+        x = self.up3(x)
+        x = self.up4(x)
+        x = self.final_conv(x)
         return x
 
