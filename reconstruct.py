@@ -32,6 +32,7 @@ def spectrogram_to_audio(
     print(f"Reconstructed audio saved as {audio_name}")
 
 
+os.makedirs("./test_results/generated_wav/",exist_ok=True)
 path = "./test_results/generated_npy"
 files = next(os.walk(path))[-1]
 for spec in files:

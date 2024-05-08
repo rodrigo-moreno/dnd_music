@@ -1,3 +1,5 @@
+import os
+
 from model import (
     UNet,
 )
@@ -24,8 +26,12 @@ for test_data in test_loader:
         predictions = model(test_data)
 
 
+os.makedirs("./test_results/generated_npy/", exist_ok=True)
+os.makedirs("./test_results/generated_image/", exist_ok=True)
+
 for mel in predictions:
     predictions_np = predictions.squeeze().cpu().numpy()
+
     filename = f"./test_results/generated_npy/mel_spectogram_{mood}_{j}.npy"
     np.save(filename, predictions_np)
     j += 1
@@ -33,6 +39,5 @@ for mel in predictions:
     mel = mel - mel.min()
     mel = mel / mel.max() * 255
     mel = mel.byte()
-
     image = to_pil_image(mel)
     image.save(f"./test_results/generated_image/mel_spectogram_{mood}_{j}.png")

@@ -8,7 +8,7 @@ from model import UNet, pad_to_power_of_two
 from dataset import MelSpectrogramDataset
 from matplotlib import pyplot as plt
 from math import floor, ceil
-
+import os
 
 def mae_loss(pred_mel, target_mel):
     """
@@ -22,6 +22,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 scheduler = DDPMScheduler(num_train_timesteps=16)
 
 dataset = MelSpectrogramDataset("data")
+os.makedirs("./test_results/steps", exist_ok=True)
 
 data_loader = DataLoader(dataset, batch_size=16, shuffle=True)
 
