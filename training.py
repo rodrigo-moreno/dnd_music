@@ -7,6 +7,7 @@ import torch
 from model import UNet, pad_to_power_of_two
 from dataset import MelSpectrogramDataset
 from matplotlib import pyplot as plt
+from math import floor, ceil
 
 
 def mae_loss(pred_mel, target_mel):
@@ -21,9 +22,10 @@ optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 scheduler = DDPMScheduler(num_train_timesteps=16)
 
 dataset = MelSpectrogramDataset("data")
-data_loader = DataLoader(dataset, batch_size=16, shuffle=False)
 
-NUM_EPOCHS = 5
+data_loader = DataLoader(dataset, batch_size=16, shuffle=True)
+
+NUM_EPOCHS = 20
 train_loss = []
 bad_ones = []
 for epoch in range(NUM_EPOCHS):
@@ -31,13 +33,14 @@ for epoch in range(NUM_EPOCHS):
     for mel_spectrogram in data_loader:
         JJ += 1
         mel_spectrogram = pad_to_power_of_two(mel_spectrogram, 2048)
-        name = dataset.file_paths[16 * epoch + JJ]
+        # name = dataset.file_paths[16 * epoch + JJ]
         print(f"mel espectogram number: {JJ} in epoch {epoch+1}")
         print(f"shape: {mel_spectrogram.shape}")
-        print(name)
+        # print(name)
         if mel_spectrogram.shape[0] != 16:
-            print(name + "is weird!!")
-            bad_ones.append(name)
+            # print(name + "is weird!!")
+            # bad_ones.append(name)
+            break
         else:
             noise_shape = mel_spectrogram.shape
             noise = torch.randn(noise_shape, dtype=torch.float)
@@ -61,9 +64,9 @@ for epoch in range(NUM_EPOCHS):
 
 torch.save(model.state_dict(), "train_results/mel_spectrogram_model.pth")
 
-weird_shapes = open(".train_results/weird_shapes.txt", "w")
-for bad in bad_ones:
-    weird_shapes.write(bad+'\n')
+# weird_shapes = open(".train_results/weird_shapes.txt", "w")
+# for bad in bad_ones:
+#     weird_shapes.write(bad+'\n')
 
 plt.figure()
 plt.title("Training Loss")

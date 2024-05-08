@@ -1,14 +1,12 @@
-import torch
 from torch import nn
 import torch.nn.functional as F
+
 
 def pad_to_power_of_two(x, target_dim=2048):
     _, _, _, w = x.size()
     pad_w = target_dim - w if w < target_dim else 0
-    # Asegúrate de que el padding sea simétrico
-    padding = (pad_w // 2, pad_w - pad_w // 2 , 0, 0)
-    return F.pad(x, padding, "constant", 0)  # padding (left, right, top, bottom)
-
+    padding = (pad_w // 2, pad_w - pad_w // 2, 0, 0)
+    return F.pad(x, padding, "constant", 0)
 
 
 class UNetBlock(nn.Module):
@@ -24,17 +22,19 @@ class UNetBlock(nn.Module):
                 nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU(inplace=True),
-                nn.MaxPool2d(2)
+                nn.MaxPool2d(2),
             )
         else:
-            self.up = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
+            self.up = nn.ConvTranspose2d(
+                in_channels, out_channels, kernel_size=2, stride=2
+            )
             self.conv = nn.Sequential(
                 nn.Conv2d(in_channels // 2, out_channels, kernel_size=3, padding=1),
                 nn.BatchNorm2d(out_channels),
                 nn.ReLU(inplace=True),
                 nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
                 nn.BatchNorm2d(out_channels),
-                nn.ReLU(inplace=True)
+                nn.ReLU(inplace=True),
             )
 
         self.dropout = nn.Dropout(0.5) if use_dropout else None
@@ -77,4 +77,3 @@ class UNet(nn.Module):
         x = self.up4(x)
         x = self.final_conv(x)
         return x
-
