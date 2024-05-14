@@ -1,14 +1,15 @@
 """
-    Script to train out diffusion model
+Script to train our diffusion model
 """
-from torch.utils.data import DataLoader
-from diffusers import DDPMScheduler
+
 import torch
-from model import UNet, pad_to_power_of_two
+from torch.utils.data import DataLoader
+from torchvision.utils import save_image
+import wandb
+from model import UNet
 from dataset import MelSpectrogramDataset
-from matplotlib import pyplot as plt
-from math import floor, ceil
-import os
+from diffusion import DiffusionModel
+
 
 def mae_loss(pred_mel, target_mel):
     """
@@ -17,61 +18,100 @@ def mae_loss(pred_mel, target_mel):
     return torch.mean(torch.abs(pred_mel - target_mel))
 
 
-model = UNet()
-optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
-scheduler = DDPMScheduler(num_train_timesteps=16)
+def diffusion_loss(model, x_0, t, noise, diffusion):
+    """
+    Calculate the diffusion loss.
 
-dataset = MelSpectrogramDataset("data")
-os.makedirs("./test_results/steps", exist_ok=True)
+    Args:
+        model: The neural network (U-Net) predicting the noise.
+        x_0: The original image tensor.
+        t: The timestep index tensor.
+        noise: The noise added to the image.
+        diffusion: The DiffusionModel instance.
 
-data_loader = DataLoader(dataset, batch_size=16, shuffle=True)
+    Returns:
+        loss: The calculated loss.
+    """
+    x_t = diffusion.q_sample(x_0, t, noise)
 
-NUM_EPOCHS = 20
-train_loss = []
-bad_ones = []
-for epoch in range(NUM_EPOCHS):
-    JJ = 0
-    for mel_spectrogram in data_loader:
-        JJ += 1
-        mel_spectrogram = pad_to_power_of_two(mel_spectrogram, 2048)
-        # name = dataset.file_paths[16 * epoch + JJ]
-        print(f"mel espectogram number: {JJ} in epoch {epoch+1}")
-        print(f"shape: {mel_spectrogram.shape}")
-        # print(name)
-        if mel_spectrogram.shape[0] != 16:
-            # print(name + "is weird!!")
-            # bad_ones.append(name)
-            break
-        else:
-            noise_shape = mel_spectrogram.shape
-            noise = torch.randn(noise_shape, dtype=torch.float)
-            noisy_mel = scheduler.add_noise(
-                mel_spectrogram, noise.float(), timesteps=scheduler.timesteps
-            )
+    # Predict the noise using the model
+    predicted_noise = model(x_t, t)
+
+    # Calculate the loss (MSE between real and predicted noise)
+    loss = torch.mean((noise - predicted_noise) ** 2)
+
+    return loss
+
+
+def train_model():
+    image_dir = "data"
+    num_epochs = 128
+    batch_size = 16
+    learning_rate = 1e-4
+    num_timesteps = 1000
+
+    # in_channels = 2       => parámetro a definir ¿?
+
+    dataset = MelSpectrogramDataset(image_dir)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = UNet().to(device) # modelo a definir
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    diffusion = DiffusionModel(num_timesteps=num_timesteps)
+
+    # Initialize WandB
+    wandb.init(project="dnd_music diffusion model")
+
+    for epoch in range(num_epochs):
+        epoch_loss = 0
+        for images in dataloader:
+            images = images.to(device)
+
+            t = torch.randint(0, num_timesteps, (images.size(0),), device=device).long()
+            noise = torch.randn_like(images)
+
+            # Calculate the diffusion loss using the DiffusionModel instance
+            loss = diffusion_loss(model, images, t, noise, diffusion)
+
             optimizer.zero_grad()
-            predicted_mel = model(noisy_mel)
-            loss = mae_loss(predicted_mel, mel_spectrogram)
             loss.backward()
             optimizer.step()
 
-            train_loss.append(loss.item())
+            epoch_loss += loss.item()
 
-            if JJ % 20 == 0:
-                torch.save(
-                    model.state_dict(), f".train_results/steps/mel_spectrogram{JJ}_{epoch}.pth"
-                )
+        epoch_loss /= len(dataloader)
+        print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}")
 
-    print(f"Epoch {epoch}, Loss: {loss.item()}")
+        # Log the loss to WandB
+        wandb.log({"epoch": epoch + 1, "loss": epoch_loss})
 
-torch.save(model.state_dict(), "train_results/mel_spectrogram_model.pth")
+        if (epoch + 1) % 10 == 0:
+            with torch.no_grad():
+                sample_images = torch.randn((batch_size, 1, 128, 128), device=device)
+                for i in range(num_timesteps - 1, -1, -1):
+                    t = torch.tensor([i], device=device).long()
+                    sample_images = diffusion.p_sample(model, sample_images, t, i)
+                save_image(sample_images, f'sample_{epoch + 1}.png')
 
-# weird_shapes = open(".train_results/weird_shapes.txt", "w")
-# for bad in bad_ones:
-#     weird_shapes.write(bad+'\n')
+                # Log generated images to WandB
+                wandb.log({"sample_images": wandb.Image(f'sample_{epoch + 1}.png')})
 
-plt.figure()
-plt.title("Training Loss")
-plt.plot(train_loss)
-plt.xlabel("Iterations")
-plt.ylabel("MSE Loss")
-plt.show()
+    torch.save(model.state_dict(), "unet_diffusion_model.pth")
+
+
+def main():
+    # Path to personal wandb key
+    path_to_key = "../../wandb_key.txt"
+    key = open(path_to_key, "r").read().split("\n")[0]
+
+    print(key)
+
+    wandb.login(key=key)
+    train_model()
+
+
+if __name__ == "__main__":
+    main()
