@@ -1,0 +1,37 @@
+{
+    "os": "macOS-14.3.1-arm64-arm-64bit",
+    "python": "3.11.5",
+    "heartbeatAt": "2024-05-15T09:48:56.666255",
+    "startedAt": "2024-05-15T09:48:56.075183",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/training.py",
+    "codePathLocal": "training.py",
+    "codePath": "training.py",
+    "git": {
+        "remote": "git@github.com:rodrigo-moreno/dnd_music.git",
+        "commit": "43b866510dedf3ca13c147e6bc475b1a2c5adef3"
+    },
+    "email": "sergiopuertasp@gmail.com",
+    "root": "/Users/zehiu/PycharmProjects/DeepLearning/dnd_music",
+    "host": "Cristobal-2.local",
+    "username": "zehiu",
+    "executable": "/Users/zehiu/anaconda3/bin/python3",
+    "cpu_count": 10,
+    "cpu_count_logical": 10,
+    "disk": {
+        "/": {
+            "total": 460.4317207336426,
+            "used": 326.78653717041016
+        }
+    },
+    "gpuapple": {
+        "type": "arm",
+        "vendor": "Apple"
+    },
+    "memory": {
+        "total": 16.0
+    }
+}

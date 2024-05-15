@@ -1,0 +1,4 @@
+
+iteration 1 in epoch:1
+torch.Size([16, 512, 10, 215])
+torch.Size([16, 256, 20, 430])

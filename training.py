@@ -9,18 +9,12 @@ import wandb
 from model import UNet
 from dataset import MelSpectrogramDataset
 from diffusion import DiffusionModel
-
-
-def mae_loss(pred_mel, target_mel):
-    """
-    Function to compute mean absolute error on the predicted mel diagram
-    """
-    return torch.mean(torch.abs(pred_mel - target_mel))
+from tqdm import tqdm
 
 
 def diffusion_loss(model, x_0, t, noise, diffusion):
     """
-    Calculate the diffusion loss.
+    Calculate the loss between the true added and the predicted noise.
 
     Args:
         model: The neural network (U-Net) predicting the noise.
@@ -45,7 +39,7 @@ def diffusion_loss(model, x_0, t, noise, diffusion):
 
 def train_model():
     image_dir = "data"
-    num_epochs = 128
+    num_epochs = 5
     batch_size = 16
     learning_rate = 1e-4
     num_timesteps = 1000
@@ -57,7 +51,7 @@ def train_model():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    model = UNet().to(device) # modelo a definir
+    model = UNet().to(device)  # modelo a definir
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     diffusion = DiffusionModel(num_timesteps=num_timesteps)
@@ -67,9 +61,11 @@ def train_model():
 
     for epoch in range(num_epochs):
         epoch_loss = 0
-        for images in dataloader:
+        ii = 0
+        for images in tqdm(dataloader):
+            ii += 1
+            # print(f'iteration {ii} in epoch {epoch + 1}')
             images = images.to(device)
-
             t = torch.randint(0, num_timesteps, (images.size(0),), device=device).long()
             noise = torch.randn_like(images)
 
@@ -87,8 +83,9 @@ def train_model():
 
         # Log the loss to WandB
         wandb.log({"epoch": epoch + 1, "loss": epoch_loss})
+        wandb.watch(model, log="all")
 
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % 2 == 0:
             with torch.no_grad():
                 sample_images = torch.randn((batch_size, 1, 128, 128), device=device)
                 for i in range(num_timesteps - 1, -1, -1):
@@ -106,8 +103,6 @@ def main():
     # Path to personal wandb key
     path_to_key = "../../wandb_key.txt"
     key = open(path_to_key, "r").read().split("\n")[0]
-
-    print(key)
 
     wandb.login(key=key)
     train_model()
