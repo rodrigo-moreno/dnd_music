@@ -65,12 +65,12 @@ class UNet(nn.Module):
         ### Define model blocks
         self.fatten = nn.Conv2d(1, 64, kernel_size=3,
                                 stride=1, padding=1)
-        self.down1 = Down(64, 128, 48, 2048)
-        self.down2 = Down(128, 256, 24, 1024)
-        self.down3 = Down(256, 512, 12, 512)
-        self.up1 = Up(512, 256, 6, 256)
-        self.up2 = Up(256, 128, 12, 512)
-        self.up3 = Up(128, 64, 24, 1024)
+        self.down1 = Down(64, 128, 80, 2048)
+        self.down2 = Down(128, 256, 40, 1024)
+        self.down3 = Down(256, 512, 20, 512)
+        self.up1 = Up(512, 256, 10, 256)
+        self.up2 = Up(256, 128, 20, 512)
+        self.up3 = Up(128, 64, 40, 1024)
         self.thin = nn.Conv2d(64, 1, kernel_size=3,
                               stride=1, padding=1)
 
@@ -322,12 +322,12 @@ if __name__ == '__main__':
     #print(model(torch.tensor([1])).shape)
     #exit()
 
-    x = torch.randn(4, 1, 48, 2048)
+    x = torch.randn(4, 1, 80, 2048)
     y = torch.randint(0, 7, [4, ])
     print(y)
     print(f'In: {x.shape}')
     #model = UNet()
-    #out = model(x)
+    #out = model(x, y, torch.tensor(0.5))
     #print(f'Out: {out.shape}')
 
     D = Diffusion(9)
