@@ -26,11 +26,12 @@ class TimeEmbd(nn.Module):
         self.C = channels
 
     def forward(self, t):
-        omega = torch.arange(1, self.C//2 + 1)
+        omega = torch.arange(1, self.C//2+1)
+        t = t.unsqueeze(1)
         p1 = (omega * t).sin()
         p2 = (omega * t).cos()
-        t_emb = torch.concatenate((p1, p2), 0)
-        return t_emb[None, ..., None, None]   ### Equivalent to two unsqueeze(-1)
+        t_emb = torch.concatenate((p1, p2), 1)
+        return t_emb.unsqueeze(-1).unsqueeze(-1)
 
 
 class GenreEmbd(nn.Module):
@@ -44,6 +45,7 @@ class GenreEmbd(nn.Module):
 
     def forward(self, genre):
         ### As above, reshaped for convenience
+        tensor = self.model(genre)[:, ..., None, None]
         return self.model(genre)[:, ..., None, None]
 
 
@@ -53,17 +55,18 @@ class GenreEmbd(nn.Module):
 ################################################################################
 ### SUBARCHITECTURES
 
+
 class UNet(nn.Module):
     """
     Implementation of the UNet class for prediction of reconstruction of x0.
     Substitutes RecoverX0 written before. Takes xt as input and tries to
     recover x0.
     """
-    def __init__(self, depth=3):
+    def __init__(self):
         super().__init__()
 
         ### Define model blocks
-        self.fatten = nn.Conv2d(1, 64, kernel_size=3,
+        self.fatten = nn.Conv2d(16, 64, kernel_size=3,
                                 stride=1, padding=1)
         self.down1 = Down(64, 128, 80, 2048)
         self.down2 = Down(128, 256, 40, 1024)
@@ -88,7 +91,6 @@ class UNet(nn.Module):
 
     def forward(self, x, genre, t):
         x = self.fatten(x)
-        #print(f'\tFt: {x.shape}')
         d1 = self.down1(x + self.t1(t) + self.g1(genre))
         #print(f'\tD1: {d1.shape}')
         d2 = self.down2(d1 + self.t2(t) + self.g2(genre))
@@ -119,7 +121,7 @@ class Residual(nn.Module):
                                    nn.ReLU(),
                                    nn.Conv2d(out_ch, out_ch, kernel_size=3,
                                              stride=1, padding=1),
-                                  )
+                                   )
 
     def forward(self, x):
         return self.model(x) + x
@@ -132,7 +134,7 @@ class _UNetBlock(nn.Module):
     class that either increase dimensions and reduce channels (Up), or reduce
     dimensions and increase channels (Down).
 
-    Wether it is an Up or Down block is determined by the value self.up
+    Whether it is an Up or Down block is determined by the value self.up
     set at instantiation.
     """
     def __init__(self, up:bool):
@@ -153,14 +155,17 @@ class _UNetBlock(nn.Module):
                                               mode='nearest'),
                                   nn.Conv2d(in_ch, out_ch, kernel_size=3,
                                             stride=1, padding=1),
-                                 )
+                                  nn.LayerNorm((height*2, width*2))
+                                  )
+
+
         else:
             model = nn.Sequential(Residual(in_ch, in_ch, height, width),
                                   Residual(in_ch, in_ch, height, width),
                                   Residual(in_ch, in_ch, height, width),
                                   nn.Conv2d(in_ch, out_ch, kernel_size=3,
                                             stride=2, padding=1),
-                                 )
+                                  )
         return model
 
     def forward(self, x):
@@ -193,8 +198,6 @@ class Up(_UNetBlock):
     def forward(self, x):
         x = self.model(x)
         return x
-
-
 
 
 

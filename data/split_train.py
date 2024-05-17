@@ -67,18 +67,18 @@ def make_spectrogram(filename, arguments):
     audio, sr = T.load(filename)
     audio = torch.clamp(audio[0], -1, 1)
     mel_spec_transform = TT.MelSpectrogram(**arguments)
-    genre_embd = {'epic': 1,
-                  'festival': 2,
-                  'fight': 3,
-                  'mysterious': 4,
-                  'romance': 5,
-                  'sad': 6,
-                  'tavern': 7,
-                  'town': 8,
+    genre_embd = {'epic': 0,
+                  'festival': 1,
+                  'fight': 2,
+                  'mysterious': 3,
+                  'romance': 4,
+                  'sad': 5,
+                  'tavern': 6,
+                  'town': 7,
                   }
     genre = genre_embd[filename.split('/')[1]]
 
-    ### We're ignoring this now. It was interesting for other resons
+    ### We're ignoring this now.  It was interesting for other resons
     #step_time = 10                ### We want this amount of seconds of audio
     #overlap_time = 0              ### How much time overlap between windows
     #step = sr * step_time         ### Convert to cycles
@@ -101,7 +101,10 @@ def make_spectrogram(filename, arguments):
         #print(f'Dims of genre: {genre.shape}')
         out = torch.cat((spec, genre), 0)
         #print(f'Dims of out: {out.shape}')
+        if out.ndim != 3:
+            continue
         out_name = os.path.splitext(filename)[0] + f'_{ii+1}.npy'
+        #print(f'shape of tensor:{out.shape}')
         #print(f'Output file {out_name}')
         np.save(out_name, out)
 
@@ -123,4 +126,3 @@ if __name__ == '__main__':
     print(genres)
     for genre in genres:
         iterate_through_tree(genre, mel_pars)
-
