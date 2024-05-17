@@ -21,11 +21,13 @@ class MelSpectrogramDataset(Dataset):
         return len(self.file_paths)
 
     def __getitem__(self, idx):
-        mel_spectrogram = self.load_mel_spectrogram(self.file_paths[idx])
+        mel_spectrogram, genre = self.load_mel_spectrogram(self.file_paths[idx])
         mel_spectrogram = self.transform(mel_spectrogram)
-        return mel_spectrogram
+        #print(mel_spectrogram.shape)
+        genre = genre[1, 1]
+        return mel_spectrogram[0, :, :], genre
 
     def load_mel_spectrogram(self, file_path):
         spectrogram = np.load(file_path)
         spectrogram = spectrogram.astype(np.float32)
-        return spectrogram
+        return spectrogram[0, :, :], spectrogram[1, :, :]

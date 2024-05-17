@@ -41,7 +41,7 @@ def iterate_through_tree(path, mel_pars):
     A function that looks at all the files in a given path, and makes the
     piece-wise Mel-Spectrogram for each of them.
     """
-    print(f'Standing on path {path}')
+    #print(f'Standing on path {path}')
     files = next(os.walk(path))
     #print(files[-1])
     for file in files[-1]:
@@ -49,14 +49,15 @@ def iterate_through_tree(path, mel_pars):
         if ext != '.mp3':
             #print(f'f\tIgnoring file {file}')
             continue
-        print(f'\tGonna transform {path + "/" + file}')
-        make_spectrogram(path + '/' + file, mel_pars)
+        #print(f'\tGonna transform {path + "/" + file}')
+        spec = make_spectrogram(path + '/' + file, mel_pars)
 
 
 def make_spectrogram(filename, arguments):
     """
-    Read file, break it into small pieces, make Mel-Spectrogram, and write the
-    file with the necessary information in the filename.
+    For each .mp3 file in the directory, reads the file and makes the Mel
+    Spectrogram. Adds a second, constant-valued channel, that represents the
+    genre of the music, determined by the path that it was read from.
 
     Input:
     - filename: filename of the audio to generate spectrograms.
@@ -66,20 +67,43 @@ def make_spectrogram(filename, arguments):
     audio, sr = T.load(filename)
     audio = torch.clamp(audio[0], -1, 1)
     mel_spec_transform = TT.MelSpectrogram(**arguments)
+    genre_embd = {'epic': 1,
+                  'festival': 2,
+                  'fight': 3,
+                  'mysterious': 4,
+                  'romance': 5,
+                  'sad': 6,
+                  'tavern': 7,
+                  'town': 8,
+                  }
+    genre = genre_embd[filename.split('/')[1]]
 
-    step = len(audio) // 10
-    step_time = 10   ### We want this amount of seconds of audio
-    overlap_time = 0   ### How much time overlap between windows
-    step = sr * step_time   ### Convert to cycles
-    overlap = sr * overlap_time   ### Likewise
+    ### We're ignoring this now. It was interesting for other resons
+    #step_time = 10                ### We want this amount of seconds of audio
+    #overlap_time = 0              ### How much time overlap between windows
+    #step = sr * step_time         ### Convert to cycles
+    #overlap = sr * overlap_time   ### Likewise
+
+    step = 256*(2047 + 0)
+    overlap = 0
     windows = AudioWindow(audio, step, overlap)
+
+    ### For each window, calcualte spectrogram and add layer corresponding
+    ### to the genre
     for ii, window in enumerate(windows):
         if len(window) < step:
             break
+        #print(f'Dims of window: {window.shape}')
         spec = mel_spec_transform(window)
+        spec = torch.unsqueeze(spec, 0)
+        #print(f'Dims of spec: {spec.shape}')
+        genre = torch.ones_like(spec) * genre
+        #print(f'Dims of genre: {genre.shape}')
+        out = torch.cat((spec, genre), 0)
+        #print(f'Dims of out: {out.shape}')
         out_name = os.path.splitext(filename)[0] + f'_{ii+1}.npy'
-        print(f'Output file {out_name}')
-        np.save(out_name, spec)
+        #print(f'Output file {out_name}')
+        np.save(out_name, out)
 
 
 mel_pars = {'sample_rate': 22050,
@@ -95,6 +119,7 @@ mel_pars = {'sample_rate': 22050,
 
 if __name__ == '__main__':
     genres = [g.path for g in os.scandir() if g.is_dir()]
+    genres.sort()
     print(genres)
     for genre in genres:
         iterate_through_tree(genre, mel_pars)
