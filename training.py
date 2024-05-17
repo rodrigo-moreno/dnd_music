@@ -62,7 +62,7 @@ def train_model():
     for epoch in range(num_epochs):
         epoch_loss = 0
         ii = 0
-        for images in tqdm(dataloader):
+        for images, labels in tqdm(dataloader):
             ii += 1
             # print(f'iteration {ii} in epoch {epoch + 1}')
             images = images.to(device)
