@@ -1,0 +1,14 @@
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Current SDK version is 0.16.5
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Configure stats pid to 8057
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Loading settings from /Users/zehiu/.config/wandb/settings
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Loading settings from /Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/settings
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Loading settings from environment variables: {'project': 'dnd_music diffusion model', 'entity': 'sergiopuertas', 'root_dir': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music', 'sweep_id': 'bu25u623', 'run_id': 'ows55011', 'sweep_param_path': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/sweep-bu25u623/config-ows55011.yaml'}
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'training.py', 'program_abspath': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/training.py', 'program': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/training.py'}
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_init.py:_log_setup():527] Logging user logs to /Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/run-20240518_203144-ows55011/logs/debug.log
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_init.py:_log_setup():528] Logging internal logs to /Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/run-20240518_203144-ows55011/logs/debug-internal.log
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():567] calling init triggers
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():574] wandb.init called with sweep_config: {'learning_rate': 0.001, 'weight_decay': 0.0001}
+config: {}
+2024-05-18 20:31:44,436 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():612] wandb.init() called when a run is still active
