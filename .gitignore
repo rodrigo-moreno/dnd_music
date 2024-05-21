@@ -1,4 +1,3 @@
 *.npy
 wandb/
 *.zip
-*.mp3
