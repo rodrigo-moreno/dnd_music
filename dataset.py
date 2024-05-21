@@ -23,7 +23,6 @@ class MelSpectrogramDataset(Dataset):
     def __getitem__(self, idx):
         mel_spectrogram, genre = self.load_mel_spectrogram(self.file_paths[idx])
         mel_spectrogram = self.transform(mel_spectrogram)
-        #print(mel_spectrogram.shape)
         genre = genre[1, 1]
         return mel_spectrogram[0, :, :], genre
 

@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+
 class TimeEmbd(nn.Module):
     """
     Do the time embedding changing from a scalar value to a vector of size C
@@ -13,6 +14,7 @@ class TimeEmbd(nn.Module):
     Output:
     - vector in R^C represented in [1, C, 1, 1] for convenience.
     """
+
     def __init__(self, channels):
         super().__init__()
         self.C = channels
@@ -31,6 +33,7 @@ class GenreEmbd(nn.Module):
     Do the genre embedding for the network. Contrary to TimeEmbd, this embedding
     IS learnable.
     """
+
     def __init__(self, genres, channels):
         super().__init__()
         self.model = nn.Embedding(genres, channels)
@@ -46,6 +49,7 @@ class UNet(nn.Module):
     Substitutes RecoverX0 written before. Takes xt as input and tries to
     recover x0.
     """
+
     def __init__(self):
         super().__init__()
 
@@ -76,7 +80,7 @@ class UNet(nn.Module):
 
     def _init_weights(self, module):
         if isinstance(module, nn.Conv2d):
-            nn.init.kaiming_normal_(module.weight, mode='fan_out', nonlinearity='relu')
+            nn.init.kaiming_normal_(module.weight, mode="fan_out", nonlinearity="relu")
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
@@ -97,6 +101,7 @@ class Residual(nn.Module):
     Single residual block inside a UNet Block. Its input is x, and its output
     is the processing of x through model(x) plus x itself.
     """
+
     def __init__(self, in_ch, out_ch, height, width):
         super().__init__()
         self.model = nn.Sequential(
@@ -110,7 +115,7 @@ class Residual(nn.Module):
 
     def _init_weights(self, module):
         if isinstance(module, nn.Conv2d):
-            nn.init.kaiming_normal_(module.weight, mode='fan_out', nonlinearity='relu')
+            nn.init.kaiming_normal_(module.weight, mode="fan_out", nonlinearity="relu")
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
@@ -128,6 +133,7 @@ class _UNetBlock(nn.Module):
     Whether it is an Up or Down block is determined by the value self.up
     set at instantiation.
     """
+
     def __init__(self, up: bool):
         super().__init__()
         self.up = up
@@ -142,9 +148,9 @@ class _UNetBlock(nn.Module):
                 Residual(in_ch, in_ch, height, width),
                 Residual(in_ch, in_ch, height, width),
                 nn.LayerNorm((height, width)),
-                nn.Upsample([height * 2, width * 2], mode='nearest'),
+                nn.Upsample([height * 2, width * 2], mode="nearest"),
                 nn.Conv2d(in_ch, out_ch, kernel_size=3, stride=1, padding=1),
-                nn.LayerNorm((height * 2, width * 2))
+                nn.LayerNorm((height * 2, width * 2)),
             )
         else:
             model = nn.Sequential(
@@ -163,15 +169,15 @@ class Down(_UNetBlock):
     """
     Downsampling version of the UNet Block
     """
+
     def __init__(self, in_channels, out_channels, height, width):
         super().__init__(up=False)
         self.model = super()._generate_model(in_channels, out_channels, height, width)
-        # Apply He initialization
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
         if isinstance(module, nn.Conv2d):
-            nn.init.kaiming_normal_(module.weight, mode='fan_out', nonlinearity='relu')
+            nn.init.kaiming_normal_(module.weight, mode="fan_out", nonlinearity="relu")
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 
@@ -184,15 +190,15 @@ class Up(_UNetBlock):
     """
     Upsampling version of the UNet Block.
     """
+
     def __init__(self, in_channels, out_channels, height, width):
         super().__init__(up=True)
         self.model = super()._generate_model(in_channels, out_channels, height, width)
-        # Apply He initialization
         self.apply(self._init_weights)
 
     def _init_weights(self, module):
         if isinstance(module, nn.Conv2d):
-            nn.init.kaiming_normal_(module.weight, mode='fan_out', nonlinearity='relu')
+            nn.init.kaiming_normal_(module.weight, mode="fan_out", nonlinearity="relu")
             if module.bias is not None:
                 nn.init.constant_(module.bias, 0)
 

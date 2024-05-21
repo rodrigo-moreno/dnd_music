@@ -60,7 +60,7 @@ class DiffusionModel:
 
     def sample(self,model, shape, genre, timesteps=1000):
         x = torch.randn(shape)
-        for t_index in tqdm(reversed(range(timesteps)), desc="Generating sample..."):
+        for t_index in tqdm(reversed(range(timesteps)), desc=f"Generating sample with {timesteps} diffusion steps"):
             t = torch.tensor([t_index])
             x = self.p_sample(model,x, t, t_index, genre)
         return x

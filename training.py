@@ -34,7 +34,9 @@ def train_model(device, learning_rate, weight_decay):
 
     # Initialize the model, optimizer, scheduler, and diffusion model
     model = UNet().to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay
+    )
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     diffusion = DiffusionModel(num_timesteps=num_timesteps)
 
@@ -69,7 +71,7 @@ def train_model(device, learning_rate, weight_decay):
 
         epoch_loss /= len(dataloader)
         print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}")
-        torch.save(model.state_dict(), f'steps/model_{epoch + 1}.15.pth')
+        torch.save(model.state_dict(), f"steps/model_{epoch + 1}.15.pth")
 
         # Log the loss to wandb
         wandb.log({"epoch": epoch + 1, "loss": epoch_loss})
@@ -99,7 +101,7 @@ def main():
     key = open(path_to_key, "r").read().split("\n")[0]
     wandb.login(key=key)
 
-    os.makedirs('steps', exist_ok=True)
+    os.makedirs("steps", exist_ok=True)
 
     # Configure wandb sweep
     # sweep_config = {
