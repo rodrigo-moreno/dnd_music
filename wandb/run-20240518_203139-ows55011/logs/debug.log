@@ -1,0 +1,24 @@
+2024-05-18 20:31:39,530 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Current SDK version is 0.16.5
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Configure stats pid to 8057
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Loading settings from /Users/zehiu/.config/wandb/settings
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Loading settings from /Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/settings
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Loading settings from environment variables: {'project': 'dnd_music diffusion model', 'entity': 'sergiopuertas', 'root_dir': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music', 'sweep_id': 'bu25u623', 'run_id': 'ows55011', 'sweep_param_path': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/sweep-bu25u623/config-ows55011.yaml'}
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'training.py', 'program_abspath': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/training.py', 'program': '/Users/zehiu/PycharmProjects/DeepLearning/dnd_music/training.py'}
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_setup.py:_flush():76] Applying login settings: {}
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_init.py:_log_setup():527] Logging user logs to /Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/run-20240518_203139-ows55011/logs/debug.log
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_init.py:_log_setup():528] Logging internal logs to /Users/zehiu/PycharmProjects/DeepLearning/dnd_music/wandb/run-20240518_203139-ows55011/logs/debug-internal.log
+2024-05-18 20:31:39,531 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():567] calling init triggers
+2024-05-18 20:31:39,532 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():574] wandb.init called with sweep_config: {'learning_rate': 0.001, 'weight_decay': 0.0001}
+config: {}
+2024-05-18 20:31:39,532 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():617] starting backend
+2024-05-18 20:31:39,532 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():621] setting up manager
+2024-05-18 20:31:39,539 INFO    Thread-4 (_run_job):8057 [backend.py:_multiprocessing_setup():105] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2024-05-18 20:31:39,543 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():629] backend started and connected
+2024-05-18 20:31:39,553 INFO    Thread-4 (_run_job):8057 [wandb_run.py:_config_callback():1347] config_cb None None {'learning_rate': 0.001, 'weight_decay': 0.0001}
+2024-05-18 20:31:39,556 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():721] updated telemetry
+2024-05-18 20:31:39,597 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():754] communicating run to backend with 90.0 second timeout
+2024-05-18 20:31:39,987 INFO    Thread-4 (_run_job):8057 [wandb_run.py:_on_init():2344] communicating current version
+2024-05-18 20:31:40,109 INFO    Thread-4 (_run_job):8057 [wandb_run.py:_on_init():2353] got version response upgrade_message: "wandb version 0.17.0 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2024-05-18 20:31:40,109 INFO    Thread-4 (_run_job):8057 [wandb_init.py:init():805] starting run threads in backend
