@@ -1,4 +1,7 @@
+/test_results
+/steps
+/wandb
+data.zip
+*.pth
 *.npy
-wandb/
-*.zip
-*.mp3
+
