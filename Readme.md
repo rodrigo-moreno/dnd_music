@@ -1,17 +1,15 @@
 # DnD Music
 
-The goal of the project is to generate mood specific ambiant music for role playing purposes. We use a diffusion model to generate Mel spectrograms from which we reconstruct an audio signal.
+The goal of the project is to generate mood-specific ambient music for role-playing purposes. We use a diffusion model to generate Mel spectrograms from which we reconstruct an audio signal.
 
-
-
-## Data Perparation
+## Data Preparation
 
 The split_train.py script can be used to process the files inside of the data folder to create the spectrograms used for the model's training.
 The dataset.py file contains the MelSpectrogramDataset class that is used to handle the loading of the spectrograms in the dataset.
 
 ## Model
 
-The model.py file contains the model's deffinition along with all its components.
+The model.py file contains the model's definition along with all its components.
 
 ## Model Training
 
@@ -26,6 +24,6 @@ Due to some NaN values appearing in the generated samples, we use the interpolat
 
 ## GUI
 
-The gui.py script provides a simple graphic user interface to use the trained model to generate samples conditionaly on the selected genre.
+The gui.py script provides a simple graphic user interface to use the trained model to generate samples conditionally on the selected genre.
 
 
