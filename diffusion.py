@@ -26,12 +26,12 @@ class DiffusionModel(nn.Module):
         Sample from the forward diffusion process.
 
         Args:
-            x_start (Tensor): The initial image tensor con forma (batch_size, height, width).
-            t (Tensor): The current timestep con forma (batch_size,).
-            noise (Tensor): The noise to be added to the image con forma (batch_size, height, width).
+            x_start (Tensor): The initial image tensor (batch_size, height, width).
+            t (Tensor): The current timestep (batch_size,).
+            noise (Tensor): The noise to be added to the image  (batch_size, height, width).
 
         Returns:
-            Tensor: The noisy image at timestep t con forma (batch_size, 1, height, width).
+            Tensor: The noisy image at timestep t (batch_size, 1, height, width).
         """
         batch_size = x_start.size(0)
 
