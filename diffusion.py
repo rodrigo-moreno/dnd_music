@@ -1,7 +1,11 @@
 import torch
 from tqdm import tqdm
-class DiffusionModel:
-    def __init__(self, beta_start=0.0001, beta_end=0.02, num_timesteps=1000):
+from torch import nn
+
+
+class DiffusionModel(nn.Module):
+
+    def __init__(self, beta_start=0.0001, beta_end=0.02, num_timesteps=1000, *args, **kwargs):
         """
         Initialize the Diffusion Model.
 
@@ -10,6 +14,7 @@ class DiffusionModel:
             beta_end (float): The ending value for beta.
             num_timesteps (int): The number of timesteps in the diffusion process.
         """
+        super().__init__(*args, **kwargs)
         self.num_timesteps = num_timesteps
         self.beta = torch.linspace(beta_start, beta_end, num_timesteps)
         self.alpha = 1.0 - self.beta
@@ -21,16 +26,22 @@ class DiffusionModel:
         Sample from the forward diffusion process.
 
         Args:
-            x_start (Tensor): The initial image tensor.
-            t (Tensor): The current timestep.
-            noise (Tensor): The noise to be added to the image.
+            x_start (Tensor): The initial image tensor con forma (batch_size, height, width).
+            t (Tensor): The current timestep con forma (batch_size,).
+            noise (Tensor): The noise to be added to the image con forma (batch_size, height, width).
 
         Returns:
-            Tensor: The noisy image at timestep t.
+            Tensor: The noisy image at timestep t con forma (batch_size, 1, height, width).
         """
-        sqrt_alpha_cumprod = torch.sqrt(self.alpha_cumprod[t]).view(-1, 1, 1, 1).to(x_start.device)
-        sqrt_one_minus_alpha_cumprod = torch.sqrt(1 - self.alpha_cumprod[t]).view(-1, 1, 1, 1).to(x_start.device)
-        return sqrt_alpha_cumprod * x_start + sqrt_one_minus_alpha_cumprod * noise
+        batch_size = x_start.size(0)
+
+        sqrt_alpha_cumprod = torch.sqrt(self.alpha_cumprod[t]).view(batch_size, 1, 1).to(x_start.device)
+        sqrt_one_minus_alpha_cumprod = torch.sqrt(1 - self.alpha_cumprod[t]).view(batch_size, 1, 1).to(x_start.device)
+
+        x_noisy = sqrt_alpha_cumprod * x_start + sqrt_one_minus_alpha_cumprod * noise
+
+        x_noisy = x_noisy.unsqueeze(1)
+        return x_noisy
 
     def p_sample(self, model, x, t, t_index, genre):
         """
