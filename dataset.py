@@ -24,7 +24,7 @@ class MelSpectrogramDataset(Dataset):
         mel_spectrogram, genre = self.load_mel_spectrogram(self.file_paths[idx])
         mel_spectrogram = self.transform(mel_spectrogram)
         genre = genre[1, 1]
-        return mel_spectrogram[0, :, :], genre
+        return mel_spectrogram[0, :, :].unsqueeze(0), int(genre)
 
     def load_mel_spectrogram(self, file_path):
         spectrogram = np.load(file_path)
