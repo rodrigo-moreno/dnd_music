@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import torch
 import numpy as np
@@ -7,31 +8,32 @@ import librosa.display
 import soundfile as sf
 import matplotlib.pyplot as plt
 
-from model import UNet
-from diffusion import DiffusionModel
+from model import Diffusion
 
 
-def test_model_with_genre(genre, num_timesteps=1000):
+def test_model_with_genre(genre, params_file, num_timesteps=1000):
     """
     Test the model by generating images from noise, conditioned on a specific genre.
 
     Args:
         genre (int): Genre label to condition the generation.
+        params_file (str): path to parameter file.
         num_timesteps (int): Number of timesteps for the diffusion model.
     """
-    diffusion = DiffusionModel(num_timesteps=num_timesteps)
-    model = UNet()
-    model.load_state_dict(torch.load("diffusion_model_1.pth"))
-    model.eval()
+    diffusion = Diffusion(num_timesteps)
+    diffusion.load_state_dict(torch.load(params_file))
+    diffusion.eval()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     genre_tensor = torch.tensor([genre], dtype=torch.long).to(device)
 
-    with torch.no_grad():
-        generated_spectrogram = diffusion.sample(
-            model, (1, 16, 80, 2048), genre_tensor, num_timesteps
-        )
-
+    #with torch.no_grad():
+        #generated_spectrogram = diffusion.sample(
+            #model, (1, 16, 80, 2048), genre_tensor, num_timesteps
+        #)
+    generated_spectrogram = diffusion.sample(torch.randn(1, 1, 80, 2048),
+                                             genre_tensor)
     generated_spectrogram = generated_spectrogram.squeeze().cpu().detach().numpy()
+
     filename = "test_results/generated_npy/generated_spectrogram.npy"
     np.save(filename, generated_spectrogram)
     if not np.isfinite(generated_spectrogram).all():
@@ -102,9 +104,11 @@ def main():
     os.makedirs("test_results/generated_npy/", exist_ok=True)
     subprocess.run(["python", "gui.py"])
 
+    params_file = sys.argv[1]
+    print(f'Parameter file: {params_file}')
     with open("genre_embd.txt", "r") as genre_file:
         genre = genre_file.read()
-    audio_path = test_model_with_genre(int(genre))
+    audio_path = test_model_with_genre(int(genre), params_file, 10)
     spec_image(audio_path)
 
     print("Done!")
