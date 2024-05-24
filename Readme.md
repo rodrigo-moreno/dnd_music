@@ -38,6 +38,9 @@ The test will also run the user interface.
 
 The gui.py script provides a simple graphic user interface to use the trained model to generate samples conditionally on the selected genre.
 
+# OTHER COMMENTS
+You may find our first approach on the model architecture in the previous_try/ folder.
 
+We also include the report (report.pdf) with more in-depth information of our work.
 
 
