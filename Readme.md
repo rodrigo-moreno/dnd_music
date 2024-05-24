@@ -3,16 +3,18 @@
 The goal of the project is to generate mood-specific ambient music for role-playing purposes. We use a diffusion model to generate Mel spectrograms from which we reconstruct an audio signal.
 
 ## How to try?
-Just run generate.py on your local machine.
+Just run generate.py on your local machine including the path to your model.
 
-e.g: python3 generate.py
+e.g: python3 generate.py <PATH_TO_MODEL>
+
+PD: all required libraries are provided in requirements.txt
 
 ## How to train?
-Just run train.py on your local machine.
+Just run training.py on your local machine.
 
-e.g: python3 train.py
+e.g: python3 training.py
 
-NB: remember to include a .txt file on your repository containing your wandb key!
+NB: remember to loging in WandB!
 # Components
 ## Data Preparation
 
@@ -21,18 +23,16 @@ The dataset.py file contains the MelSpectrogramDataset class that is used to han
 
 ## Model
 
-The model.py file contains the model's definition along with all its components.
+The model.py file contains the model's definition along with all its components and the Diffusion processes.
 
 ## Model Training
 
 The model can be trained by running the training.py script with a complete dataset of spectrograms. The logs will be saved using Weights and Biases.
-The diffusion.py script contains sampling tools for the forward and reverse diffusion process. 
 
 ## Testing
 
 The performance can be assessed after training by running the generate.py script, the test will generate some audio samples that will be saved in the test_results/generated_wav directory along with spectrograms in the test_results/generated_image directory.
 The test will also run the user interface.
-Due to some NaN values possibly appearing in the generated samples, we use the interpolate.py script to tackle this issue and fix the values.
 
 ## GUI
 

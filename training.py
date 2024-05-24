@@ -1,3 +1,7 @@
+"""
+Script to train the diffusion model.
+Parameters are adjusted in an ideal case. See report for actual training parameters.
+"""
 import os
 import torch
 import wandb
@@ -16,31 +20,26 @@ def train_model(device, learning_rate, weight_decay):
         device (torch.device): The device to use for training.
         learning_rate (float): The learning rate for the optimizer.
         weight_decay (float): The weight decay for the optimizer.
-
-    Returns:
-        list: List of residual images.
-        UNet: Trained UNet model.
-        DiffusionModel: Diffusion model used during training.
     """
     image_dir = "data"
     num_epochs = 15
-    batch_size = 4
-    num_timesteps = 10
+    batch_size = 16
+    num_timesteps = 1000
 
     # Load the dataset and create a dataloader
     dataset = MelSpectrogramDataset(image_dir)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True,
-                            num_workers=4)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=4)
 
     # Initialize the model, optimizer, scheduler, and diffusion model
     model = Diffusion(num_timesteps).to(device)
-    optimizer = torch.optim.Adam(model.parameters(),
-                                 lr=learning_rate,
-                                 weight_decay=weight_decay
-                                )
-    scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=learning_rate, weight_decay=weight_decay
+    )
 
-    # Initialize wandb
+    # LR scheduler to improve training results
+    scheduler = StepLR(optimizer, step_size=5, gamma=0.1)
+
+    # Initialize wandb for logging
     wandb.init(project="dnd_music diffusion model")
 
     residual_images = []
@@ -49,38 +48,50 @@ def train_model(device, learning_rate, weight_decay):
         for images, label in tqdm(dataloader):
             if images.shape[0] != batch_size:
                 residual_images.append(images)
-                print(f'Skipping batch with size {images.shape[0]}')
+                print(f"Skipping batch with size {images.shape[0]}")
                 continue
 
             images = images.to(device)
+            label = label.to(device)
 
-            ### This model is now directly the diffusion model
+            # Forward pass
             out, loss = model(images, label)
             optimizer.zero_grad()
+            # Backward pass and optimization
             loss.backward()
             optimizer.step()
 
             epoch_loss += loss.item()
 
         epoch_loss /= len(dataloader)
-        print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}')
-        torch.save(model.state_dict(), f'steps/model_{epoch+1}_R.pth')
+        print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss:.4f}")
+        # Save the model checkpoint
+        torch.save(model.state_dict(), f"steps/model_{epoch+1}_R.pth")
 
-        wandb.log({'loss': epoch_loss})
-        wandb.watch(model, log='all')
+        # Log the loss to wandb
+        wandb.log({"loss": epoch_loss})
+        wandb.watch(model, log="all")
 
+        # Step the scheduler
         scheduler.step()
-    torch.save(model.state_dict(), f'final_state_R.')
+
+    # Save the final model state
+    torch.save(model.state_dict(), f"final_state_R.pth")
 
 
 def main():
-    os.makedirs('steps', exist_ok=True)
+    """
+    Main function to set up directories, parameters, and initiate training.
+    Parameters were set during previous assessment.
+    """
+    os.makedirs("steps", exist_ok=True)
 
     lr = 1e-3
     wd = 1e-5
-    global_device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    global_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     train_model(global_device, lr, wd)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

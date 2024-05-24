@@ -1,0 +1,13 @@
+os
+torch
+wandb
+tqdm
+tkinter
+numpy
+torchaudio
+glob
+subprocess
+sys
+librosa
+soundfile
+matplotlib

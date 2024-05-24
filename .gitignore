@@ -1,7 +1,5 @@
 /test_results
 /steps
-/wandb
-data.zip
 *.pth
 *.npy
 wandb/

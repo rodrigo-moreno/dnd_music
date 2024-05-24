@@ -1,3 +1,6 @@
+"""
+Script to generate a simple GUI for better UX.
+"""
 import tkinter as tk
 from tkinter import messagebox
 

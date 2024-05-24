@@ -1,3 +1,7 @@
+"""
+Script to interpolate the NaN found in the result. At first we thought of using this approach if nnan were a few. Then,
+we discovered the real mistake.
+"""
 import numpy as np
 from scipy.interpolate import RegularGridInterpolator
 from test import spectrogram_to_audio
