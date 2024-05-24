@@ -14,7 +14,7 @@ from model import Diffusion
 
 
 def spectrogram_to_audio(
-    filename, sr=22050, n_fft=1024, hop_length=256, win_length=1024
+        filename, sr=22050, n_fft=1024, hop_length=256, win_length=1024
 ):
     """
     Convert a Mel Spectrogram back to an audio waveform using the Griffin-Lim algorithm.
@@ -77,7 +77,7 @@ def spec_image(audio_path):
     plt.close()
 
 
-def generate_sample(genre, params_file, num_timesteps=1000):
+def generate_sample(genre, params_file, num_timesteps=10):
     """
     Test the model by generating images from noise, conditioned on a specific genre.
 
@@ -92,6 +92,7 @@ def generate_sample(genre, params_file, num_timesteps=1000):
     diffusion.load_state_dict(torch.load(params_file))
     diffusion.eval()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    diffusion = diffusion.to(device)
     genre_tensor = torch.tensor([genre], dtype=torch.long).to(device)
     # Generate initial noise
     noise = torch.randn(1, 1, 80, 2048).to(device)
@@ -102,9 +103,6 @@ def generate_sample(genre, params_file, num_timesteps=1000):
     # Save the generated spectrogram to a file
     filename = "test_results/generated_npy/generated_spectrogram.npy"
     np.save(filename, generated_spectrogram)
-    if not np.isfinite(generated_spectrogram).all():
-        subprocess.run(["python", "interpolate.py"])
-
     print("Converting...")
     # Convert the spectrogram to audio and return the path to the audio file
     return spectrogram_to_audio(filename)
@@ -126,6 +124,7 @@ def main():
     with open("genre_embd.txt", "r") as genre_file:
         genre = genre_file.read()
     # Generate the audio sample
+    print("Generating music...")
     audio_path = generate_sample(int(genre), params_file)
     # Generate the spectrogram image from the audio
     spec_image(audio_path)

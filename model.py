@@ -458,7 +458,7 @@ class Diffusion(nn.Module):
         if len(x.shape) != 4:
             x = x.view(1, 1, 80, 2048)
 
-        for t in torch.linspace(1, 0, self.steps)[:-1]:
+        for t in torch.linspace(1, 0, self.steps).to(x.device)[:-1]:
             pred = self.up(x, g, t)
             mu = self.mu_up(x, pred, t)
             var = self.var_up(t)
